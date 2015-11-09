@@ -1,15 +1,15 @@
 var fs = require('fs');
 
 module.exports = {
-  pwd: function() {
+  pwd: function(file) {
     process.stdout.write(__dirname);
     process.stdout.write("\nprompt > ");
   },
-  date: function() {
+  date: function(file) {
     process.stdout.write(Date().toString());
     process.stdout.write("\nprompt > ");
   },
-  ls: function() {
+  ls: function(file) {
     fs.readdir('.', function(err, files) {
       if (err) throw err;
       files.forEach(function(file) {
@@ -17,7 +17,9 @@ module.exports = {
       })
       process.stdout.write("\nprompt > ");
     });
+  },
+  echo: function(file){
+    process.stdout.write(file.join(" "));
+    process.stdout.write("\nprompt > ");
   }
-
-
 }
