@@ -1,4 +1,5 @@
 var fs = require('fs');
+var path = require('path');
 var request = require('request');
 
 module.exports = {
@@ -102,5 +103,29 @@ module.exports = {
       }
       done(result);
     })
+  },
+
+  find: function(dir, done) {
+    var results = [];
+    var self = this;
+    dir = dir.toString();
+    fs.readdir(dir, function(err, list) {
+      if (err) return done(err);
+      var pending = list.length;
+      if (!pending) return done(results.join('\n'));
+      list.forEach(function(file) {
+        file = path.resolve(dir, file);
+        fs.stat(file, function(err, stat) {
+          if (stat && stat.isDirectory()) {
+            self.find(file, function(res) {
+              results = results.concat(res);
+              if (!--pending) done(results.join("\n"));
+            });
+          } else {
+            results.push(file);
+            if (!--pending) done(results.join('\n'))
+        }});
+      });
+    });
   }
 }
