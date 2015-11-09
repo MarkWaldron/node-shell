@@ -1,104 +1,106 @@
 var fs = require('fs');
+var request = require('request');
 
 module.exports = {
 
-  pwd: function(file) {
-    process.stdout.write(__dirname);
-    process.stdout.write("\nprompt > ");
+  pwd: function(done) {
+    done(__dirname);
   },
 
-  date: function(file) {
-    process.stdout.write(Date().toString());
-    process.stdout.write("\nprompt > ");
+  date: function(done) {
+    done(Date().toString());
   },
 
-  ls: function(file) {
+  ls: function(done) {
+    var result = '';
     fs.readdir('.', function(err, files) {
       if (err) throw err;
       files.forEach(function(file) {
-        process.stdout.write(file.toString() + "\n");
+        result += file.toString() + '\n';
       })
-      process.stdout.write("\nprompt > ");
+      done(result);
     });
   },
 
-  echo: function(file){
-    process.stdout.write(file.join(" "));
-    process.stdout.write("\nprompt > ");
+  echo: function(file, done){
+    done(file.join(" "));
   },
 
-  cat: function(file){
+  cat: function(file, done){
     var filePath = './' + file[0];
     fs.readFile(filePath, 'utf8', function(err, data){
       if(err) throw err;
-      process.stdout.write(data);
-      process.stdout.write("\nprompt > ");
+      done(data);
     });
   },
 
-  head: function(file){
+  head: function(file, done){
     var filePath = './' + file[0];
     fs.readFile(filePath, 'utf8', function(err, data){
       if(err) throw err;
       var lines = data.split('\n');
       if(lines.length > 5){
         lines = lines.slice(0, 5).join('\n');
-        process.stdout.write(lines);
       } else {
         lines = lines.join('\n')
-        process.stdout.write(lines);
       }
-      process.stdout.write('\nprompt > ');
+      done(lines);
     })
   },
 
-  tail: function(file){
+  tail: function(file, done){
     var filePath = './' + file[0];
     fs.readFile(filePath, 'utf8', function(err, data){
       if(err) throw err;
       var lines = data.split('\n');
       if(lines.length > 5){
         lines = lines.slice(lines.length-5, lines.length).join('\n');
-        process.stdout.write(lines);
       } else {
-        lines = lines.join('\n')
-        process.stdout.write(lines);
+        lines = lines.join('\n');
       }
-      process.stdout.write('\nprompt > ');
+      done(lines);
     })
   },
 
-  sort: function(file){
+  sort: function(file, done){
     var filePath = './' + file[0];
     fs.readFile(filePath, 'utf8', function(err, data){
       if(err) throw err;
       var lines = data.split('\n');
       lines.sort();
       lines = lines.join('\n');
-      process.stdout.write(lines);
-      process.stdout.write('\nprompt > ');
+      done(lines)
     })
   },
 
-  wc: function(file){
+  wc: function(file, done){
     var filePath = './' + file[0];
     fs.readFile(filePath, 'utf8', function(err, data){
       if(err) throw err;
       var lines = data.split('\n');
-      process.stdout.write(lines.length.toString());
-      process.stdout.write('\nprompt > ');
+      done(lines.length.toString());
     })
   },
 
-  uniq: function(file){
+  uniq: function(file, done){
     var filePath = './' + file[0];
     fs.readFile(filePath, 'utf8', function(err, data){
       if(err) throw err;
       var lines = data.split('\n');
       lines = Array.from(new Set(lines));
       lines = lines.join('\n');
-      process.stdout.write(lines);
-      process.stdout.write('\nprompt > ');
+      done(lines);
     });
+  },
+
+  curl: function(url, done){
+    request(url[0], function(err, response, body){
+      if (err) throw err;
+      var result = '';
+      if(!err && response.statusCode == 200){
+        result += body;
+      }
+      done(result);
+    })
   }
 }
